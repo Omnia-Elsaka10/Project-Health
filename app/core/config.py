@@ -1,13 +1,9 @@
-import os
-from dotenv import load_dotenv
+from pydantic_settings import BaseSettings
 
-# Load variables from .env file
-load_dotenv()
+class Settings(BaseSettings):
+    GROQ_API_KEY: str
 
-class Settings:
-    # Get API key from environment variables
-    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY")
-    # Using Gemini 1.5 Flash for speed and efficiency
-    MODEL_NAME: str = "gemini-1.5-flash"
+    class Config:
+        env_file = ".env"
 
 settings = Settings()
