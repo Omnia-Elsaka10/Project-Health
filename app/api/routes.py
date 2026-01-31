@@ -5,13 +5,9 @@ router = APIRouter()
 
 @router.post("/analyze-health")
 async def analyze_health(data: dict):
-    """
-    API endpoint that receives project data and returns the AI health report.
-    """
     try:
-        # Call the service layer to process the data
-        report = await get_project_health_report(data)
-        return report
+        # We removed 'await' because the service function is now synchronous
+        return get_project_health_report(data)
     except Exception as e:
-        # Return a clear error if something goes wrong (e.g., API key issue)
+        print(f"DEBUG ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
