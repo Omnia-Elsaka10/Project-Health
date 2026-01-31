@@ -1,24 +1,21 @@
+import json
 from app.core.llm import get_llm
 from app.prompts.project_health import SYSTEM_PROMPT
-from langchain.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import JsonOutputParser
 
-async def get_project_health_report(project_data: dict):
-    """
-    Business logic to combine the prompt and data, then invoke the AI model.
-    """
-    model = get_llm()
-    parser = JsonOutputParser()
+def get_project_health_report(project_data: dict):
+    # 1. Get the model
+    llm = get_llm()
     
-    # Create the prompt structure
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", SYSTEM_PROMPT),
-        ("human", "Analyze the following project data and goals: {data}")
-    ])
+    # 2. Setup the prompt simply
+    user_content = f"Project Data: {json.dumps(project_data)}"
+    full_prompt = f"{SYSTEM_PROMPT}\n\n{user_content}"
     
-    # Build the chain: Prompt -> LLM -> JSON Parser
-    chain = prompt | model | parser
+    # 3. Call the model and get content directly
+    response = llm.invoke(full_prompt)
     
-    # Run the chain with the actual project data
-    report = chain.invoke({"data": project_data})
-    return report
+    # 4. Clean and Parse (The magic part)
+    content = response.content
+    # Remove any markdown if the model tried to be smart
+    clean_content = content.replace("```json", "").replace("```", "").strip()
+    
+    return json.loads(clean_content)
